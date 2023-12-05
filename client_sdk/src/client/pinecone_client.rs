@@ -12,7 +12,7 @@ use crate::utils::errors::{PineconeClientError, PineconeResult};
 
 const DEAULT_PINECONE_REGION: &str = "us-west1-gcp";
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PineconeClient {
     pub api_key: String,
     pub region: String,
