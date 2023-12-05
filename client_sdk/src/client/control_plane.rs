@@ -11,7 +11,7 @@ use index_service::apis::index_operations_api::{
 use index_service::models::CreateCollectionRequest;
 use index_service::models::PatchRequest;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ControlPlaneClient {
     controller_url: String,
     configuration: configuration::Configuration,
