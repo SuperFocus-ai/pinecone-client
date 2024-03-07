@@ -1,4 +1,3 @@
-use pyo3::Python;
 use std::io::Write;
 use std::time::{Duration, Instant};
 use std::{env, io};
@@ -106,7 +105,7 @@ impl PineconeClient {
         &self,
         db: Db,
         timeout: Option<i32>,
-        py: Option<Python<'_>>,
+        //py: Option<Python<'_>>,
     ) -> PineconeResult<()> {
         // If timeout is -ve and not -1 throw an error
         let name = db.name.clone();
@@ -125,29 +124,9 @@ impl PineconeClient {
         let mut new_index = self.describe_index(&name).await?;
         let start_time = Instant::now();
         let max_timeout = Duration::from_secs(timeout.unwrap_or(300) as u64);
-        if let Some(py) = py {
-            py.run(
-                "print(\"Waiting for index to be ready...\", flush=True)",
-                None,
-                None,
-            )
-            .map_err(|_| PineconeClientError::Other("Failed to print to stdout".to_string()))?;
-        } else {
-            println!("Waiting for index to be ready...");
-            io::stdout().flush()?;
-        }
+        println!("Waiting for index to be ready...");
+        io::stdout().flush()?;
         while new_index.status != Some("Ready".to_string()) {
-            if let Some(py) = py {
-                Python::check_signals(py)
-                    .map_err(|_| {
-                        let msg = "Interrupted. Index status unknown. Please call describe_index() to check status";
-                        println!("{}", msg);
-                        io::stdout().flush().unwrap();
-                        PineconeClientError::KeyboardInterrupt(
-                            msg.into(),
-                        )
-                    })?;
-            }
             if start_time.elapsed() > max_timeout {
                 return Err(PineconeClientError::Other(
                     "Index creation timed out. Please call describe_index() to check status."
